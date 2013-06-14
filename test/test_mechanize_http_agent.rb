@@ -217,6 +217,13 @@ class TestMechanizeHttpAgent < Mechanize::TestCase
       assert_kind_of String, body
     end
 
+    @agent.response_read_body_hooks << proc do |agent, uri, response, part|
+      assert_equal @agent, agent
+      assert_equal URI('http://example/index.html'), uri
+      assert_equal '200', response.code
+      assert_kind_of String, part
+    end
+
     @agent.fetch URI 'http://example/index.html'
   end
 

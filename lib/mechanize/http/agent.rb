@@ -41,6 +41,9 @@ class Mechanize::HTTP::Agent
   # A list of hooks to call to handle the content-encoding of a request.
   attr_reader :content_encoding_hooks
 
+  # A list of hooks to call to after reading each part of a response's body.
+  attr_reader :response_read_body_hooks
+
   # :section: HTTP Authentication
 
   attr_reader :auth_store # :nodoc:
@@ -141,6 +144,7 @@ class Mechanize::HTTP::Agent
     @open_timeout             = nil
     @post_connect_hooks       = []
     @pre_connect_hooks        = []
+    @response_read_body_hooks = []
     @read_timeout             = nil
     @redirect_ok              = true
     @redirection_limit        = 20
@@ -367,6 +371,12 @@ class Mechanize::HTTP::Agent
   def hook_content_encoding response, uri, response_body_io
     @content_encoding_hooks.each do |hook|
       hook.call self, uri, response, response_body_io
+    end
+  end
+
+  def hook_response_read_body response, uri, response_body_part
+    @response_read_body_hooks.each do |hook|
+      hook.call self, uri, response, response_body_part
     end
   end
 
@@ -908,6 +918,8 @@ class Mechanize::HTTP::Agent
 
           body_io = new_io
         end
+
+        hook_response_read_body response, uri, part
 
         body_io.write(part)
         log.debug("Read #{part.length} bytes (#{total} total)") if log

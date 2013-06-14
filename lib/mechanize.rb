@@ -302,6 +302,15 @@ class Mechanize
     @agent.pre_connect_hooks
   end
 
+  ##
+  # A list of hooks to call after retrieving each part of a response body.
+  # Hooks are called with the agent, the URI, the response, and the retrieved
+  # response body part.
+
+  def response_read_body_hooks
+    @agent.response_read_body_hooks
+  end
+
   # :section: Requests
   #
   # Methods for making HTTP requests
